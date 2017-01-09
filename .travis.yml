@@ -7,34 +7,18 @@ matrix:
       dist: trusty
       sudo: required
       compiler: gcc
-      addons:
-        apt:
-          packages:
-            - g++-5
-      env: COMPILER=g++-5.0
 
     - os: linux
       dist: trusty
       sudo: required
       compiler: clang
-      addons:
-        apt:
-          packages:
-            - clang-3.8
-      env: COMPILER=clang++-3.8
 
     - os: osx
       osx_image: xcode8.2
-      sudo: required
       compiler: clang
-      addons:
-        apt:
-          packages:
-            - clang-3.8
-      env: COMPILER=clang++-3.8
 
 # Build steps
 script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
+  - cmake .. && make
