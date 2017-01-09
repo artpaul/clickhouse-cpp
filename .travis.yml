@@ -9,29 +9,17 @@ compiler:
   - gcc
   - clang
 
-addons:
-apt:
-  packages:
-    - gcc-5
-    - clang-3.8
-
-sudo: required
-
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: COMPILER=g++-5.0
-
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: COMPILER=clang++-3.8
-
-    - os: osx
-      osx_image: xcode8.2
-      env: COMPILER=clang++-3.8
+env:
+  - COMPILER=g++-5.0
+    addons:
+      apt:
+        packages:
+          - gcc-5
+  - COMPILER=clang++-3.8
+    addons:
+      apt:
+        packages:
+          - clang-3.8
 
 # Build steps
 script:
