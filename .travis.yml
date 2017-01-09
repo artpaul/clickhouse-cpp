@@ -1,27 +1,37 @@
 # Enable C++ support
 language: cpp
 
-os:
-  - linux
-  - osx
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler: gcc
+      addons:
+        apt:
+          packages:
+            - gcc-5
+      env: COMPILER=g++-5.0
 
-compiler:
-  - gcc
-  - clang
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler: clang
+      addons:
+        apt:
+          packages:
+            - clang-3.8
+      env: COMPILER=clang++-3.8
 
-env:
-  - COMPILER=g++-5.0
-  - COMPILER=clang++-3.8
-
-addons:
-  apt:
-    packages:
-      - gcc-5
-      - clang-3.8
-
-dist: trusty
-osx_image: xcode8.2
-sudo: required
+    - os: osx
+      osx_image: xcode8.2
+      sudo: required
+      compiler: clang
+      addons:
+        apt:
+          packages:
+            - clang-3.8
+      env: COMPILER=clang++-3.8
 
 # Build steps
 script:
