@@ -1,16 +1,16 @@
 # Enable C++ support
 language: cpp
 
+sudo: required
+
 matrix:
   include:
     # Ubuntu 14.04 Trusty support
     - os: linux
       dist: trusty
-      sudo: required
     # OS X 10.12 support
     - os: osx
       osx_image: xcode8.2
-      sudo: required
   include:
     - compiler: gcc
       addons:
