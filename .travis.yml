@@ -10,7 +10,7 @@ matrix:
       addons:
         apt:
           packages:
-            - gcc-5
+            - g++-5
       env: COMPILER=g++-5.0
 
     - os: linux
