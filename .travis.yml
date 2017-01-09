@@ -3,9 +3,7 @@ language: cpp
 
 os:
   - linux
-    dist: trusty
   - osx
-    osx_image: xcode8.2
 
 sudo: required
 
