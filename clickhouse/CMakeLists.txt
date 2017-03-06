@@ -1,4 +1,18 @@
-ADD_LIBRARY (clickhouse-cpp-lib
+ADD_LIBRARY (clickhouse-cpp-lib SHARED
+    base/coded.cpp
+    base/input.cpp
+    base/output.cpp
+    base/platform.cpp
+    base/socket.cpp
+    block.cpp
+    client.cpp
+    columns.cpp
+    query.cpp
+    type_parser.cpp
+    types.cpp
+)
+
+ADD_LIBRARY (clickhouse-cpp-lib-static STATIC
     base/coded.cpp
     base/input.cpp
     base/output.cpp
@@ -13,4 +27,7 @@ ADD_LIBRARY (clickhouse-cpp-lib
 )
 
 SET_TARGET_PROPERTIES(clickhouse-cpp-lib
+    PROPERTIES LINKER_LANGUAGE CXX)
+
+SET_TARGET_PROPERTIES(clickhouse-cpp-lib-static
     PROPERTIES LINKER_LANGUAGE CXX)
