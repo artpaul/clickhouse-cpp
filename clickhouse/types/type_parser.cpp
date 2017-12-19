@@ -5,6 +5,38 @@
 
 namespace clickhouse {
 
+static std::unordered_map<std::string, Type::Code> g_type_code = {
+    { "Int8",        Type::Int8 },
+    { "Int16",       Type::Int16 },
+    { "Int32",       Type::Int32 },
+    { "Int64",       Type::Int64 },
+    { "UInt8",       Type::UInt8 },
+    { "UInt16",      Type::UInt16 },
+    { "UInt32",      Type::UInt32 },
+    { "UInt64",      Type::UInt64 },
+    { "Float32",     Type::Float32 },
+    { "Float64",     Type::Float64 },
+    { "String",      Type::String },
+    { "FixedString", Type::FixedString },
+    { "DateTime",    Type::DateTime },
+    { "Date",        Type::Date },
+    { "Array",       Type::Array },
+    { "Nullable",    Type::Nullable },
+    { "Tuple",       Type::Tuple },
+    { "Enum8",       Type::Enum8 },
+    { "Enum16",      Type::Enum16 },
+    { "UUID",        Type::UUID },
+};
+
+static Type::Code GetTypeCode(const StringView& name) {
+    std::string n = name.to_string();
+    auto it = g_type_code.find(n);
+    if (it != g_type_code.end()) {
+        return it->second;
+    }
+    return Type::Void;
+}
+
 static TypeAst::Meta GetTypeMeta(const StringView& name) {
     if (name == "Array") {
         return TypeAst::Array;
@@ -50,6 +82,7 @@ bool TypeParser::Parse(TypeAst* type) {
             case Token::Name:
                 type_->meta = GetTypeMeta(token.value);
                 type_->name = token.value.to_string();
+                type_->code = GetTypeCode(token.value.to_string());
                 break;
             case Token::Number:
                 type_->meta = TypeAst::Number;

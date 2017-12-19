@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../base/string_view.h"
+#include "types.h"
 
 #include <list>
 #include <stack>
@@ -21,6 +22,7 @@ struct TypeAst {
 
     /// Type's category.
     Meta meta;
+    Type::Code code;
     /// Type's name.
     /// Need to cache TypeAst, so can't use StringView for name.
     std::string name;
