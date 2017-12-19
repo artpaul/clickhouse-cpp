@@ -22,7 +22,8 @@ struct TypeAst {
     /// Type's category.
     Meta meta;
     /// Type's name.
-    StringView name;
+    /// Need to cache TypeAst, so can't use StringView for name.
+    std::string name;
     /// Value associated with the node,
     /// used for fixed-width types and enum values.
     int64_t value = 0;
@@ -65,5 +66,8 @@ private:
     TypeAst* type_;
     std::stack<TypeAst*> open_elements_;
 };
+
+
+const TypeAst* ParseTypeName(const std::string& type_name);
 
 }

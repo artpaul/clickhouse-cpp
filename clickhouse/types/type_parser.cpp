@@ -1,7 +1,7 @@
 #include "type_parser.h"
 #include "../base/string_utils.h"
 
-#include <iostream>
+#include <unordered_map>
 
 namespace clickhouse {
 
@@ -49,11 +49,11 @@ bool TypeParser::Parse(TypeAst* type) {
         switch (token.type) {
             case Token::Name:
                 type_->meta = GetTypeMeta(token.value);
-                type_->name = token.value;
+                type_->name = token.value.to_string();
                 break;
             case Token::Number:
                 type_->meta = TypeAst::Number;
-                type_->value = FromString<int>(token.value);
+                type_->value = std::stol(token.value.to_string());
                 break;
             case Token::LPar:
                 type_->elements.emplace_back(TypeAst());
@@ -128,6 +128,26 @@ TypeParser::Token TypeParser::NextToken() {
     }
 
     return Token{Token::EOS, StringView()};
+}
+
+
+const TypeAst* ParseTypeName(const std::string& type_name) {
+    // Cache for type_name.
+    // Usually we won't have too many type names in the cache, so do not try to
+    // limit cache size.
+    static std::unordered_map<std::string, TypeAst> ast_cache;
+
+    auto it = ast_cache.find(type_name);
+    if (it != ast_cache.end()) {
+        return &it->second;
+    }
+
+    auto& ast = ast_cache[type_name];
+    if (TypeParser(type_name).Parse(&ast)) {
+        return &ast;
+    }
+    ast_cache.erase(type_name);
+    return nullptr;
 }
 
 }

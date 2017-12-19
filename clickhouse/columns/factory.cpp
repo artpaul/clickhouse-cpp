@@ -92,7 +92,7 @@ static ColumnRef CreateColumnFromAst(const TypeAst& ast) {
 
             for (const auto& elem : ast.elements) {
                 enum_items.push_back(
-                    Type::EnumItem{elem.name.to_string(), (int16_t)elem.value});
+                    Type::EnumItem{elem.name, (int16_t)elem.value});
             }
 
             if (ast.name == "Enum8") {
@@ -117,11 +117,11 @@ static ColumnRef CreateColumnFromAst(const TypeAst& ast) {
 
 } // namespace
 
-ColumnRef CreateColumnByType(const std::string& type_name) {
-    TypeAst ast;
 
-    if (TypeParser(type_name).Parse(&ast)) {
-        return CreateColumnFromAst(ast);
+ColumnRef CreateColumnByType(const std::string& type_name) {
+    auto ast = ParseTypeName(type_name);
+    if (ast != nullptr) {
+        return CreateColumnFromAst(*ast);
     }
 
     return nullptr;
