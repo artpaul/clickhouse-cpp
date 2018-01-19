@@ -58,7 +58,7 @@ TEST_P(ClientCase, Array) {
             if (block.GetRowCount() == 0) {
                 return;
             }
-            EXPECT_EQ(1, block.GetColumnCount());
+            EXPECT_EQ(1U, block.GetColumnCount());
             for (size_t c = 0; c < block.GetRowCount(); ++c, ++row) {
                 auto col = block[0]->As<ColumnArray>()->GetAsColumn(c);
                 EXPECT_EQ(ARR_SIZE[row], col->Size());
@@ -69,7 +69,7 @@ TEST_P(ClientCase, Array) {
         }
     );
 
-    EXPECT_EQ(4, row);
+    EXPECT_EQ(4U, row);
 }
 
 TEST_P(ClientCase, Date) {
@@ -91,8 +91,8 @@ TEST_P(ClientCase, Date) {
             if (block.GetRowCount() == 0) {
                 return;
             }
-            EXPECT_EQ(1, block.GetRowCount());
-            EXPECT_EQ(1, block.GetColumnCount());
+            EXPECT_EQ(1U, block.GetRowCount());
+            EXPECT_EQ(1U, block.GetColumnCount());
             for (size_t c = 0; c < block.GetRowCount(); ++c) {
                 auto col = block[0]->As<ColumnDateTime>();
                 std::time_t t = col->As<ColumnDateTime>()->At(c);
@@ -158,16 +158,18 @@ TEST_P(ClientCase, Nullable) {
             "CREATE TABLE IF NOT EXISTS test.nullable (id Nullable(UInt64), date Nullable(Date)) "
             "ENGINE = Memory");
 
+    // Round std::time_t to start of date.
+    const std::time_t cur_date = std::time(nullptr) / 86400 * 86400;
     const struct {
         uint64_t id;
         uint8_t id_null;
         std::time_t date;
         uint8_t date_null;
     } TEST_DATA[] = {
-        { 1, 0, std::time(nullptr), 0 },
-        { 2, 0, std::time(nullptr), 1 },
-        { 3, 1, std::time(nullptr), 0 },
-        { 4, 1, std::time(nullptr), 1 },
+        { 1, 0, cur_date - 2 * 86400, 0 },
+        { 2, 0, cur_date - 1 * 86400, 1 },
+        { 3, 1, cur_date + 1 * 86400, 0 },
+        { 4, 1, cur_date + 2 * 86400, 1 },
     };
 
     /// Insert some values.
@@ -217,9 +219,8 @@ TEST_P(ClientCase, Nullable) {
                 if (!col_date->IsNull(c)) {
                     // Because date column type is Date instead of
                     // DateTime, round to start second of date for test.
-                    EXPECT_EQ(
-                            static_cast<uint64_t>(TEST_DATA[row].date) / 86400 * 86400,
-                            col_date->Nested()->As<ColumnDate>()->At(c)) << row;
+                    EXPECT_EQ(TEST_DATA[row].date,
+                            col_date->Nested()->As<ColumnDate>()->At(c));
                 }
             }
         }
@@ -243,7 +244,7 @@ TEST_P(ClientCase, Numbers) {
             }
         }
     );
-    EXPECT_EQ(100000, num);
+    EXPECT_EQ(100000U, num);
 }
 
 TEST_P(ClientCase, Cancelable) {
