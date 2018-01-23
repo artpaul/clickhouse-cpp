@@ -3,6 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)
 INCLUDE (cmake/cpp11.cmake)
 INCLUDE (cmake/subdirs.cmake)
 
+OPTION(BUILD_BENCHMARK "Build benchmark" OFF)
+
 PROJECT (CLICKHOUSE-CLIENT)
 
     USE_CXX11()
@@ -27,3 +29,7 @@ PROJECT (CLICKHOUSE-CLIENT)
         tests/simple
         ut
     )
+
+    IF (BUILD_BENCHMARK)
+        SUBDIRS(bench)
+    ENDIF (BUILD_BENCHMARK)
