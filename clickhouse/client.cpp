@@ -455,6 +455,7 @@ bool Client::Impl::ReceiveData() {
 
     if (events_) {
         events_->OnData(block);
+        events_->OnDataWithInfo(block);
         if (!events_->OnDataCancelable(block)) {
             SendCancel();
         }
@@ -721,6 +722,11 @@ void Client::Execute(const Query& query) {
 void Client::Select(const std::string& query, SelectCallback cb) {
     Execute(Query(query).OnData(cb));
 }
+
+void Client::Select(const std::string& query, void* extraInfo, SelectCallbackWithInfo cb) {
+    Execute(Query(query).OnDataWithInfo(cb, extraInfo));
+}
+
 
 void Client::SelectCancelable(const std::string& query, SelectCancelableCallback cb) {
     Execute(Query(query).OnDataCancelable(cb));

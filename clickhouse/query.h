@@ -67,6 +67,7 @@ public:
 
     /// Some data was received.
     virtual void OnData(const Block& block) = 0;
+    virtual void OnDataWithInfo(const Block& block) = 0;
     virtual bool OnDataCancelable(const Block& block) = 0;
 
     virtual void OnServerException(const Exception& e) = 0;
@@ -82,6 +83,7 @@ public:
 using ExceptionCallback        = std::function<void(const Exception& e)>;
 using ProgressCallback         = std::function<void(const Progress& progress)>;
 using SelectCallback           = std::function<void(const Block& block)>;
+using SelectCallbackWithInfo   = std::function<void(const Block& block, void* extraInfo)>;
 using SelectCancelableCallback = std::function<bool(const Block& block)>;
 
 
@@ -100,6 +102,13 @@ public:
     /// Set handler for receiving result data.
     inline Query& OnData(SelectCallback cb) {
         select_cb_ = cb;
+        return *this;
+    }
+
+    /// Set handler for receiving result data.
+    inline Query& OnDataWithInfo(SelectCallbackWithInfo cb, void* extraInfo) {
+        select_cb_with_info = cb;
+        select_cb_extra_info = extraInfo;
         return *this;
     }
 
@@ -125,6 +134,12 @@ private:
     void OnData(const Block& block) override {
         if (select_cb_) {
             select_cb_(block);
+        }
+    }
+
+    void OnDataWithInfo(const Block& block) override {
+        if (select_cb_with_info) {
+            select_cb_with_info(block, select_cb_extra_info);
         }
     }
 
@@ -160,6 +175,8 @@ private:
     ExceptionCallback exception_cb_;
     ProgressCallback progress_cb_;
     SelectCallback select_cb_;
+    SelectCallbackWithInfo select_cb_with_info;
+    void* select_cb_extra_info;
     SelectCancelableCallback select_cancelable_cb_;
 };
 

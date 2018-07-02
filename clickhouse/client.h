@@ -80,6 +80,11 @@ public:
     /// one or more call of \p cb.
     void Select(const std::string& query, SelectCallback cb);
 
+    /// Intends for execute select queries.  Data will be returned with
+    /// one or more call of \p cb.
+    /// extraInfo will be passed to callback
+    void Select(const std::string& query, void* extraInfo, SelectCallbackWithInfo cb);
+
     /// Executes a select query which can be canceled by returning false from
     /// the data handler function \p cb.
     void SelectCancelable(const std::string& query, SelectCancelableCallback cb);
