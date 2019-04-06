@@ -17,7 +17,7 @@ CompressedInput::CompressedInput(CodedInputStream* input)
 
 CompressedInput::~CompressedInput() {
     if (!mem_.Exhausted()) {
-        if (!std::uncaught_exception()) {
+        if (!std::uncaught_exceptions()) {
             throw std::runtime_error("some data was not readed");
         }
     }
