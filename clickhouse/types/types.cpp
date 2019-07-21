@@ -70,6 +70,10 @@ std::string Type::GetName() const {
             return "UInt64";
         case UUID:
             return "UUID";
+        case IPv4:
+            return "IPv4";
+        case IPv6:
+            return "IPv6";
         case Float32:
             return "Float32";
         case Float64:
@@ -153,6 +157,15 @@ TypeRef Type::CreateNullable(TypeRef nested_type) {
 TypeRef Type::CreateString() {
     return TypeRef(new Type(Type::String));
 }
+
+TypeRef Type::CreateIPv4() {
+    return TypeRef(new Type(Type::IPv4));
+}
+
+TypeRef Type::CreateIPv6() {
+    return TypeRef(new Type(Type::IPv6));
+}
+
 
 TypeRef Type::CreateString(size_t n) {
     TypeRef type(new Type(Type::FixedString));

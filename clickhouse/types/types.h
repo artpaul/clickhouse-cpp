@@ -33,6 +33,8 @@ public:
         Enum8,
         Enum16,
         UUID,
+        IPv4,
+        IPv6,
     };
 
     struct EnumItem {
@@ -71,6 +73,10 @@ public:
     static TypeRef CreateSimple();
 
     static TypeRef CreateString();
+
+    static TypeRef CreateIPv4();
+
+    static TypeRef CreateIPv6();
 
     static TypeRef CreateString(size_t n);
 

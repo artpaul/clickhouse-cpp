@@ -123,6 +123,63 @@ inline void GenericExample(Client& client) {
     client.Execute("DROP TABLE test.client");
 }
 
+
+
+
+inline void DomainExample(Client& client) {
+    /// Create a table.
+    client.Execute("CREATE TABLE IF NOT EXISTS default.client (from IPv4, to IPv6) ENGINE = Memory");
+
+    /// Insert some values.
+    {
+        Block block;
+
+        {
+            auto from = std::make_shared<ColumnIPv4>();
+            from->Append("1.1.1.8");
+            from->Append("2.2.2.2");
+            from->Append("1.2.3.6");
+
+
+            block.AppendColumn("from", from);
+        }
+
+        {
+            auto to = std::make_shared<ColumnIPv6>();
+            to->Append("fe80::86ba:ef31:f2d8:7e8b");
+            to->Append("::1");
+            to->Append("2001::");
+
+
+            block.AppendColumn("to", to);
+        }
+
+        client.Insert("default.client", block);
+    }
+
+    /// Select values inserted in the previous step.
+    client.Select("SELECT from,to FROM default.client", [](const Block& block)
+                  {
+
+
+                      for (Block::Iterator bi(block); bi.IsValid(); bi.Next()) {
+                          std::cout << bi.Name() << " ";
+                      }
+                      std::cout << std::endl;
+
+                      for (size_t i = 0; i < block.GetRowCount(); ++i) {
+                          std::cout << (*block[0]->As<ColumnIPv4>()).to_string(i) << " "
+                                    << (*block[1]->As<ColumnIPv6>()).to_string(i) << "\n";
+                      }
+
+                  }
+    );
+
+    /// Delete table.
+    client.Execute("DROP TABLE default.client");
+}
+
+
 inline void NullableExample(Client& client) {
     /// Create a table.
     client.Execute("CREATE TABLE IF NOT EXISTS test.client (id Nullable(UInt64), date Nullable(Date)) ENGINE = Memory");
@@ -160,27 +217,27 @@ inline void NullableExample(Client& client) {
 
     /// Select values inserted in the previous step.
     client.Select("SELECT id, date FROM test.client", [](const Block& block)
-        {
-            for (size_t c = 0; c < block.GetRowCount(); ++c) {
-                auto col_id   = block[0]->As<ColumnNullable>();
-                auto col_date = block[1]->As<ColumnNullable>();
+                  {
+                      for (size_t c = 0; c < block.GetRowCount(); ++c) {
+                          auto col_id   = block[0]->As<ColumnNullable>();
+                          auto col_date = block[1]->As<ColumnNullable>();
 
-                if (col_id->IsNull(c)) {
-                    std::cerr << "\\N ";
-                } else {
-                    std::cerr << col_id->Nested()->As<ColumnUInt64>()->At(c)
-                              << " ";
-                }
+                          if (col_id->IsNull(c)) {
+                              std::cerr << "\\N ";
+                          } else {
+                              std::cerr << col_id->Nested()->As<ColumnUInt64>()->At(c)
+                                        << " ";
+                          }
 
-                if (col_date->IsNull(c)) {
-                    std::cerr << "\\N\n";
-                } else {
-                    std::time_t t = col_date->Nested()->As<ColumnDate>()->At(c);
-                    std::cerr << std::asctime(std::localtime(&t))
-                              << "\n";
-                }
-            }
-        }
+                          if (col_date->IsNull(c)) {
+                              std::cerr << "\\N\n";
+                          } else {
+                              std::time_t t = col_date->Nested()->As<ColumnDate>()->At(c);
+                              std::cerr << std::asctime(std::localtime(&t))
+                                        << "\n";
+                          }
+                      }
+                  }
     );
 
     /// Delete table.
@@ -309,33 +366,37 @@ inline void ShowTables(Client& client) {
 }
 
 static void RunTests(Client& client) {
-    ArrayExample(client);
-    CancelableExample(client);
-    DateExample(client);
-    EnumExample(client);
-    ExecptionExample(client);
-    GenericExample(client);
-    NullableExample(client);
-    NumbersExample(client);
-    ShowTables(client);
+//    ArrayExample(client);
+//    CancelableExample(client);
+//    DateExample(client);
+//    EnumExample(client);
+//    ExecptionExample(client);
+//    GenericExample(client);
+//    NullableExample(client);
+    DomainExample(client);
+//    NumbersExample(client);
+//    ShowTables(client);
 }
 
 int main() {
     try {
         {
             Client client(ClientOptions()
-                            .SetHost("localhost")
+                            .SetHost("172.16.7.6")
+                            .SetUser("default")
+                            .SetPassword("omadb@123")
+                            .SetConnectTimeout(std::chrono::seconds(3))
                             .SetPingBeforeQuery(true));
             RunTests(client);
         }
 
-        {
-            Client client(ClientOptions()
-                            .SetHost("localhost")
-                            .SetPingBeforeQuery(true)
-                            .SetCompressionMethod(CompressionMethod::LZ4));
-            RunTests(client);
-        }
+//        {
+//            Client client(ClientOptions()
+//                            .SetHost("localhost")
+//                            .SetPingBeforeQuery(true)
+//                            .SetCompressionMethod(CompressionMethod::LZ4));
+//            RunTests(client);
+//        }
     } catch (const std::exception& e) {
         std::cerr << "exception : " << e.what() << std::endl;
     }

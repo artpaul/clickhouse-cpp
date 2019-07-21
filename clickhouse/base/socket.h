@@ -54,6 +54,8 @@ public:
 
     bool Closed() const noexcept;
 
+    void SetTimeout(int sendSecond, int recvSecond);
+
     SocketHolder& operator = (SocketHolder&& other) noexcept;
 
     operator SOCKET () const noexcept;
@@ -98,7 +100,7 @@ static struct NetrworkInitializer {
 } gNetrworkInitializer;
 
 ///
-SOCKET SocketConnect(const NetworkAddress& addr);
+SOCKET SocketConnect(const NetworkAddress& addr, int timeoutSecond);
 
 ssize_t Poll(struct pollfd* fds, int nfds, int timeout) noexcept;
 

@@ -11,6 +11,8 @@
 #include "columns/string.h"
 #include "columns/tuple.h"
 #include "columns/uuid.h"
+#include "columns/ipv4.h"
+#include "columns/ipv6.h"
 
 #include <chrono>
 #include <memory>
@@ -56,6 +58,12 @@ struct ClientOptions {
     DECLARE_FIELD(send_retries, int, SetSendRetries, 1);
     /// Amount of time to wait before next retry.
     DECLARE_FIELD(retry_timeout, std::chrono::seconds, SetRetryTimeout, std::chrono::seconds(5));
+
+    DECLARE_FIELD(connect_timeout, std::chrono::seconds, SetConnectTimeout, std::chrono::seconds(3));
+
+    DECLARE_FIELD(recv_timeout, std::chrono::seconds, SetRecvTimeout, std::chrono::seconds(5));
+
+    DECLARE_FIELD(send_timeout, std::chrono::seconds, SetSendTimeout, std::chrono::seconds(3));
 
     /// Compression method.
     DECLARE_FIELD(compression_method, CompressionMethod, SetCompressionMethod, CompressionMethod::None);

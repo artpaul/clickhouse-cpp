@@ -15,6 +15,8 @@ SET ( clickhouse-cpp-lib-src
     columns/string.cpp
     columns/tuple.cpp
     columns/uuid.cpp
+    columns/ipv4.cpp
+    columns/ipv6.cpp
 
     types/type_parser.cpp
     types/types.cpp

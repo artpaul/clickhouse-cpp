@@ -136,6 +136,22 @@ bool SocketHolder::Closed() const noexcept {
     return handle_ == -1;
 }
 
+void SocketHolder::SetTimeout(int sendTimeoutSecond, int recvTimeoutSecond){
+    if(Closed()) return;
+    struct timeval sendTimeout = {sendTimeoutSecond, 0};
+    struct timeval recvTimeout = {recvTimeoutSecond, 0};
+
+    if(0 != setsockopt(handle_, SOL_SOCKET, SO_SNDTIMEO, (const char*)&sendTimeout, sizeof(sendTimeout))){
+        Close();
+        throw std::runtime_error("set socket send timeout failed, error:" + std::to_string(errno));
+    }
+
+    if(0 != setsockopt(handle_, SOL_SOCKET, SO_RCVTIMEO, (const char*)&recvTimeout, sizeof(recvTimeout))){
+        Close();
+        throw std::runtime_error("set socket recv timeout failed, error:" + std::to_string(errno));
+    }
+}
+
 SocketHolder& SocketHolder::operator = (SocketHolder&& other) noexcept {
     if (this != &other) {
         Close();
@@ -221,7 +237,7 @@ NetrworkInitializer::NetrworkInitializer() {
 }
 
 
-SOCKET SocketConnect(const NetworkAddress& addr) {
+SOCKET SocketConnect(const NetworkAddress& addr, int timeoutSecond) {
     for (auto res = addr.Info(); res != nullptr; res = res->ai_next) {
         SOCKET s(socket(res->ai_family, res->ai_socktype, res->ai_protocol));
 
@@ -238,7 +254,7 @@ SOCKET SocketConnect(const NetworkAddress& addr) {
                 fd.fd = s;
                 fd.events = POLLOUT;
                 fd.revents = 0;
-                int rval = Poll(&fd, 1, 5000);
+                int rval = Poll(&fd, 1, timeoutSecond*1000);
 
                 if (rval == -1) {
                     throw std::system_error(errno, std::system_category(), "fail to connect");

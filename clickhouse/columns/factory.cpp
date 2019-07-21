@@ -8,6 +8,8 @@
 #include "string.h"
 #include "tuple.h"
 #include "uuid.h"
+#include "ipv4.h"
+#include "ipv6.h"
 
 #include "../types/type_parser.h"
 
@@ -36,6 +38,10 @@ static ColumnRef CreateTerminalColumn(const TypeAst& ast) {
 
     case Type::UUID:
         return std::make_shared<ColumnUUID>();
+    case Type::IPv4:
+        return std::make_shared<ColumnIPv4>();
+    case Type::IPv6:
+        return std::make_shared<ColumnIPv6>();
 
     case Type::Float32:
         return std::make_shared<ColumnFloat32>();

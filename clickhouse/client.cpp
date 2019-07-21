@@ -214,17 +214,18 @@ void Client::Impl::Insert(const std::string& table_name, const Block& block) {
         fields.push_back(block.GetColumnName(i));
     }
 
-    std::stringstream fields_section;
+    std::string fields_section;
 
     for (auto elem = fields.begin(); elem != fields.end(); ++elem) {
         if (std::distance(elem, fields.end()) == 1) {
-            fields_section << *elem;
+            fields_section += *elem;
         } else {
-            fields_section << *elem << ",";
+            fields_section += *elem;
+            fields_section += ",";
         }
     }
 
-    SendQuery("INSERT INTO " + table_name + " ( " + fields_section.str() + " ) VALUES");
+    SendQuery("INSERT INTO " + table_name + " ( " + fields_section + " ) VALUES");
 
     uint64_t server_packet;
     // Receive data packet.
@@ -267,7 +268,9 @@ void Client::Impl::Ping() {
 }
 
 void Client::Impl::ResetConnection() {
-    SocketHolder s(SocketConnect(NetworkAddress(options_.host, std::to_string(options_.port))));
+    SocketHolder s(SocketConnect(NetworkAddress(options_.host, std::to_string(options_.port)), options_.connect_timeout.count()));
+
+    s.SetTimeout(options_.send_timeout.count(), options_.recv_timeout.count());
 
     if (s.Closed()) {
         throw std::system_error(errno, std::system_category());
