@@ -57,7 +57,7 @@ namespace clickhouse {
 
     void ColumnIPv4::Append(ColumnRef column) {
         if (auto col = column->As<ColumnIPv4>()) {
-            data_->Append(column);
+            data_->Append(col->data_);
         }
     }
 
