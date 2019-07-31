@@ -1,6 +1,7 @@
 #include "socket.h"
 #include "singleton.h"
 
+#include <chrono>
 #include <assert.h>
 #include <stdexcept>
 #include <system_error>
@@ -221,7 +222,7 @@ NetrworkInitializer::NetrworkInitializer() {
 }
 
 
-SOCKET SocketConnect(const NetworkAddress& addr) {
+SOCKET SocketConnect(const NetworkAddress& addr, std::chrono::seconds socketReceiveTimeout) {
     for (auto res = addr.Info(); res != nullptr; res = res->ai_next) {
         SOCKET s(socket(res->ai_family, res->ai_socktype, res->ai_protocol));
 
@@ -230,6 +231,10 @@ SOCKET SocketConnect(const NetworkAddress& addr) {
         }
 
         SetNonBlock(s, true);
+
+        /* Timeout in seconds */
+        timeval tv{socketReceiveTimeout.count(), 0};
+        setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &tv , sizeof(tv));
 
         if (connect(s, res->ai_addr, (int)res->ai_addrlen) != 0) {
             int err = errno;

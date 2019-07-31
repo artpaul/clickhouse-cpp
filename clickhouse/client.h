@@ -56,6 +56,9 @@ struct ClientOptions {
     DECLARE_FIELD(send_retries, int, SetSendRetries, 1);
     /// Amount of time to wait before next retry.
     DECLARE_FIELD(retry_timeout, std::chrono::seconds, SetRetryTimeout, std::chrono::seconds(5));
+    /// Amount of time the socket waits for response.
+    /// If the timeout is set to zero (the default) then the operation will never timeout.
+    DECLARE_FIELD(socket_receive_timeout, std::chrono::seconds, SetSocketReceiveTimeout, std::chrono::seconds(0));
 
     /// Compression method.
     DECLARE_FIELD(compression_method, CompressionMethod, SetCompressionMethod, CompressionMethod::None);

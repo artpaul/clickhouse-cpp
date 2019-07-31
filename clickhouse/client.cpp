@@ -267,7 +267,7 @@ void Client::Impl::Ping() {
 }
 
 void Client::Impl::ResetConnection() {
-    SocketHolder s(SocketConnect(NetworkAddress(options_.host, std::to_string(options_.port))));
+    SocketHolder s(SocketConnect(NetworkAddress(options_.host, std::to_string(options_.port)), options_.socket_receive_timeout));
 
     if (s.Closed()) {
         throw std::system_error(errno, std::system_category());
