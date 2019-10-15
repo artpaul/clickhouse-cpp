@@ -251,6 +251,8 @@ SOCKET SocketConnect(const NetworkAddress& addr) {
                         SetNonBlock(s, false);
                         return s;
                     }
+                    throw std::system_error(
+                     err, std::system_category(), "fail to connect"); 
                 }
             }
         } else {
