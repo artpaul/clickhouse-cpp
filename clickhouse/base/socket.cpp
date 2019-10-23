@@ -222,7 +222,7 @@ NetrworkInitializer::NetrworkInitializer() {
 
 
 SOCKET SocketConnect(const NetworkAddress& addr) {
-    int last_err=0;
+    int last_err = 0;
     for (auto res = addr.Info(); res != nullptr; res = res->ai_next) {
         SOCKET s(socket(res->ai_family, res->ai_socktype, res->ai_protocol));
 
@@ -252,7 +252,7 @@ SOCKET SocketConnect(const NetworkAddress& addr) {
                         SetNonBlock(s, false);
                         return s;
                     }
-                   last_err=err;
+                   last_err = err;
                 }
             }
         } else {

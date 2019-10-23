@@ -1,25 +1,28 @@
 #include <clickhouse/base/socket.h>
 #include <contrib/gtest/gtest.h>
-#if !defined(_win_)
-#   include <errno.h>
-#   include <fcntl.h>
-#   include <netdb.h>
-#   include <signal.h>
-#   include <unistd.h>
-#   include <arpa/inet.h>
-#endif
+#include "tcp_server.h"
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#include <fstream>
 #include <thread>
 using namespace clickhouse;
 
 
 
 TEST(Socketcase, connecterror) {
-   int port=9978;
+   int port = 9978;
    NetworkAddress addr("localhost",std::to_string(port));
+   LocalTcpServer server(port);
+   server.start();
+   std::this_thread::sleep_for(std::chrono::seconds(1));
+   try{
+      SocketConnect(addr);
+   }catch(const std::system_error& e)
+   {
+      FAIL();
+   }
+   std::this_thread::sleep_for(std::chrono::seconds(1));
+   server.stop();
    try{
       SocketConnect(addr);
       FAIL();
@@ -27,6 +30,5 @@ TEST(Socketcase, connecterror) {
    {
       ASSERT_NE(EINPROGRESS,e.code().value());
    }
-   
  
 }
