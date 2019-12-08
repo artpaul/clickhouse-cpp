@@ -274,8 +274,8 @@ void Client::Impl::ResetConnection() {
     }
 
     if (options_.tcp_keepalive) {
-        s.SetTcpKeepAlive(options_.tcp_keepalive_idle,
-                          options_.tcp_keepalive_intvl,
+        s.SetTcpKeepAlive(options_.tcp_keepalive_idle.count(),
+                          options_.tcp_keepalive_intvl.count(),
                           options_.tcp_keepalive_cnt);
     }
 
