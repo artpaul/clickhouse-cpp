@@ -13,6 +13,7 @@
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
 #else
+#   include <netinet/tcp.h>
 #   include <sys/types.h>
 #   include <sys/socket.h>
 #   include <poll.h>
@@ -53,6 +54,8 @@ public:
     void Close() noexcept;
 
     bool Closed() const noexcept;
+
+    void SetTcpKeepAlive(int idle, int intvl, int cnt) noexcept;
 
     SocketHolder& operator = (SocketHolder&& other) noexcept;
 
