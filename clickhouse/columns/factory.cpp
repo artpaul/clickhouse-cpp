@@ -2,6 +2,7 @@
 
 #include "array.h"
 #include "date.h"
+#include "decimal.h"
 #include "enum.h"
 #include "ip4.h"
 #include "ip6.h"
@@ -40,8 +41,17 @@ static ColumnRef CreateTerminalColumn(const TypeAst& ast) {
     case Type::Int64:
         return std::make_shared<ColumnInt64>();
 
-    case Type::UUID:
-        return std::make_shared<ColumnUUID>();
+    case Type::Decimal32:
+        return std::make_shared<ColumnDecimal>(9, ast.elements.front().value);
+    case Type::Decimal64:
+        return std::make_shared<ColumnDecimal>(18, ast.elements.front().value);
+    case Type::Decimal128:
+        if (ast.elements.size() == 2) {
+            return std::make_shared<ColumnDecimal>(ast.elements.front().value, ast.elements.back().value);
+        } else if (ast.elements.size() == 1) {
+            return std::make_shared<ColumnDecimal>(38, ast.elements.front().value);
+        }
+        throw std::runtime_error("Unexpected branch in code");
 
     case Type::Float32:
         return std::make_shared<ColumnFloat32>();
@@ -62,6 +72,9 @@ static ColumnRef CreateTerminalColumn(const TypeAst& ast) {
         return std::make_shared<ColumnIPv4>();
     case Type::IPv6:
         return std::make_shared<ColumnIPv6>();
+
+    case Type::UUID:
+        return std::make_shared<ColumnUUID>();
 
     default:
         return nullptr;

@@ -114,7 +114,6 @@ inline void DateExample(Client& client) {
     b.AppendColumn("d", d);
     client.Insert("test.date", b);
 
-
     client.Select("SELECT d FROM test.date", [](const Block& block)
         {
             for (size_t c = 0; c < block.GetRowCount(); ++c) {
@@ -127,6 +126,17 @@ inline void DateExample(Client& client) {
 
     /// Delete table.
     client.Execute("DROP TABLE test.date");
+}
+
+inline void DecimalExample(Client& client) {
+    client.Select("SELECT toDecimal32(2, 4) AS x", [](const Block& block)
+        {
+            for (size_t c = 0; c < block.GetRowCount(); ++c) {
+                auto col = block[0]->As<ColumnDecimal>();
+                cout << (int)col->At(c) << endl;
+            }
+        }
+    );
 }
 
 inline void GenericExample(Client& client) {
@@ -405,9 +415,12 @@ inline void IPExample(Client &client) {
 }
 
 static void RunTests(Client& client) {
+    DecimalExample(client);
+    return;
     ArrayExample(client);
     CancelableExample(client);
     DateExample(client);
+    DecimalExample(client);
     EnumExample(client);
     ExecptionExample(client);
     GenericExample(client);

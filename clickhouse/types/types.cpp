@@ -15,6 +15,8 @@ Type::Type(const Code code)
         nullable_ = new NullableImpl;
     } else if (code_ == Enum8 || code_ == Enum16) {
         enum_ = new EnumImpl;
+    } else if (code_== Decimal || code_== Decimal32 || code_ == Decimal64 || code_ == Decimal128) {
+        decimal_ = new DecimalImpl;
     }
 }
 
@@ -27,6 +29,8 @@ Type::~Type() {
         delete nullable_;
     } else if (code_ == Enum8 || code_ == Enum16) {
         delete enum_;
+    } else if (code_== Decimal || code_== Decimal32 || code_ == Decimal64 || code_ == Decimal128) {
+        delete decimal_;
     }
 }
 
@@ -60,6 +64,8 @@ std::string Type::GetName() const {
             return "Int32";
         case Int64:
             return "Int64";
+        case Int128:
+            return "Int128";
         case UInt8:
             return "UInt8";
         case UInt16:
@@ -125,6 +131,23 @@ std::string Type::GetName() const {
             result += ")";
             return result;
         }
+        case Decimal:
+        case Decimal32:
+        case Decimal64:
+        case Decimal128: {
+            std::string result = "Decimal";
+
+            if (decimal_->precision <= 9) {
+                result += "32";
+            } else if (decimal_->precision <= 18) {
+                result += "64";
+            } else {
+                result += "128";
+            }
+
+            result += "(" + std::to_string(decimal_->scale) + ")";
+            return result;
+        }
     }
 
     return std::string();
@@ -146,6 +169,13 @@ TypeRef Type::CreateDate() {
 
 TypeRef Type::CreateDateTime() {
     return TypeRef(new Type(Type::DateTime));
+}
+
+TypeRef Type::CreateDecimal(size_t precision, size_t scale) {
+    TypeRef type(new Type(Type::Decimal128));
+    type->decimal_->precision = precision;
+    type->decimal_->scale = scale;
+    return type;
 }
 
 TypeRef Type::CreateIPv4() {
