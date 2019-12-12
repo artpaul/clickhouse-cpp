@@ -15,7 +15,9 @@ ColumnDecimal::ColumnDecimal(size_t precision, size_t scale)
     }
 }
 
-ColumnDecimal::ColumnDecimal(TypeRef type) : Column(type) {
+ColumnDecimal::ColumnDecimal(TypeRef type)
+    : Column(type)
+{
 }
 
 void ColumnDecimal::Append(const Int128& value) {
@@ -28,7 +30,7 @@ void ColumnDecimal::Append(const Int128& value) {
     }
 }
 
-void ColumnDecimal::Append(const std::string &value) {
+void ColumnDecimal::Append(const std::string& value) {
     Int128 int_value = 0;
     auto c = value.begin();
     bool sign = true;
@@ -67,7 +69,7 @@ Int128 ColumnDecimal::At(size_t i) const {
 }
 
 ColumnRef ColumnDecimal::Slice(size_t begin, size_t len) {
-    std::shared_ptr<ColumnDecimal> slice(new ColumnDecimal(Type()));
+    std::shared_ptr<ColumnDecimal> slice(new ColumnDecimal(type_));
     slice->data_ = data_->Slice(begin, len);
     return slice;
 }

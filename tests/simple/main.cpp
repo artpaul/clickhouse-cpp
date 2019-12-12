@@ -129,6 +129,25 @@ inline void DateExample(Client& client) {
 }
 
 inline void DecimalExample(Client& client) {
+    Block b;
+
+    /// Create a table.
+    client.Execute("CREATE TABLE IF NOT EXISTS test.decimal (d Decimal64(4)) ENGINE = Memory");
+
+    auto d = std::make_shared<ColumnDecimal>(18, 4);
+    d->Append(21111);
+    b.AppendColumn("d", d);
+    client.Insert("test.decimal", b);
+
+    client.Select("SELECT d FROM test.decimal", [](const Block& block)
+        {
+            for (size_t c = 0; c < block.GetRowCount(); ++c) {
+                auto col = block[0]->As<ColumnDecimal>();
+                cout << (int)col->At(c) << endl;
+            }
+        }
+    );
+
     client.Select("SELECT toDecimal32(2, 4) AS x", [](const Block& block)
         {
             for (size_t c = 0; c < block.GetRowCount(); ++c) {
@@ -137,6 +156,9 @@ inline void DecimalExample(Client& client) {
             }
         }
     );
+
+    /// Delete table.
+    client.Execute("DROP TABLE test.decimal");
 }
 
 inline void GenericExample(Client& client) {
@@ -415,8 +437,6 @@ inline void IPExample(Client &client) {
 }
 
 static void RunTests(Client& client) {
-    DecimalExample(client);
-    return;
     ArrayExample(client);
     CancelableExample(client);
     DateExample(client);

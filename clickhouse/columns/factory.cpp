@@ -41,22 +41,19 @@ static ColumnRef CreateTerminalColumn(const TypeAst& ast) {
     case Type::Int64:
         return std::make_shared<ColumnInt64>();
 
+    case Type::Float32:
+        return std::make_shared<ColumnFloat32>();
+    case Type::Float64:
+        return std::make_shared<ColumnFloat64>();
+
+    case Type::Decimal:
+        return std::make_shared<ColumnDecimal>(ast.elements.front().value, ast.elements.back().value);
     case Type::Decimal32:
         return std::make_shared<ColumnDecimal>(9, ast.elements.front().value);
     case Type::Decimal64:
         return std::make_shared<ColumnDecimal>(18, ast.elements.front().value);
     case Type::Decimal128:
-        if (ast.elements.size() == 2) {
-            return std::make_shared<ColumnDecimal>(ast.elements.front().value, ast.elements.back().value);
-        } else if (ast.elements.size() == 1) {
-            return std::make_shared<ColumnDecimal>(38, ast.elements.front().value);
-        }
-        throw std::runtime_error("Unexpected branch in code");
-
-    case Type::Float32:
-        return std::make_shared<ColumnFloat32>();
-    case Type::Float64:
-        return std::make_shared<ColumnFloat64>();
+        return std::make_shared<ColumnDecimal>(38, ast.elements.front().value);
 
     case Type::String:
         return std::make_shared<ColumnString>();

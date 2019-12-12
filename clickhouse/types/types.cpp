@@ -132,22 +132,13 @@ std::string Type::GetName() const {
             return result;
         }
         case Decimal:
+            return "Decimal(" + std::to_string(decimal_->precision) + "," + std::to_string(decimal_->scale) + ")";
         case Decimal32:
+            return "Decimal32(" + std::to_string(decimal_->scale) + ")";
         case Decimal64:
-        case Decimal128: {
-            std::string result = "Decimal";
-
-            if (decimal_->precision <= 9) {
-                result += "32";
-            } else if (decimal_->precision <= 18) {
-                result += "64";
-            } else {
-                result += "128";
-            }
-
-            result += "(" + std::to_string(decimal_->scale) + ")";
-            return result;
-        }
+            return "Decimal64(" + std::to_string(decimal_->scale) + ")";
+        case Decimal128:
+            return "Decimal128(" + std::to_string(decimal_->scale) + ")";
     }
 
     return std::string();
@@ -172,7 +163,7 @@ TypeRef Type::CreateDateTime() {
 }
 
 TypeRef Type::CreateDecimal(size_t precision, size_t scale) {
-    TypeRef type(new Type(Type::Decimal128));
+    TypeRef type(new Type(Type::Decimal));
     type->decimal_->precision = precision;
     type->decimal_->scale = scale;
     return type;
