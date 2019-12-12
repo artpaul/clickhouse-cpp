@@ -1,4 +1,3 @@
-
 #include "decimal.h"
 
 namespace clickhouse {
@@ -7,11 +6,11 @@ ColumnDecimal::ColumnDecimal(size_t precision, size_t scale)
     : Column(Type::CreateDecimal(precision, scale))
 {
     if (precision <= 9) {
-        data_ = ColumnRef(new ColumnInt32());
+        data_ = std::make_shared<ColumnInt32>();
     } else if (precision <= 18) {
-        data_ = ColumnRef(new ColumnInt64());
+        data_ = std::make_shared<ColumnInt64>();
     } else {
-        data_ = ColumnRef(new ColumnInt128());
+        data_ = std::make_shared<ColumnInt128>();
     }
 }
 
@@ -66,6 +65,28 @@ Int128 ColumnDecimal::At(size_t i) const {
     } else {
         return data_->As<ColumnInt128>()->At(i);
     }
+}
+
+void ColumnDecimal::Append(ColumnRef column) {
+    if (auto col = column->As<ColumnDecimal>()) {
+        data_->Append(col->data_);
+    }
+}
+
+bool ColumnDecimal::Load(CodedInputStream* input, size_t rows) {
+    return data_->Load(input, rows);
+}
+
+void ColumnDecimal::Save(CodedOutputStream* output) {
+    data_->Save(output);
+}
+
+void ColumnDecimal::Clear() {
+    data_->Clear();
+}
+
+size_t ColumnDecimal::Size() const {
+    return data_->Size();
 }
 
 ColumnRef ColumnDecimal::Slice(size_t begin, size_t len) {
