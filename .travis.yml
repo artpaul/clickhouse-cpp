@@ -4,7 +4,7 @@ language: cpp
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: bionic
       sudo: required
       compiler: gcc
       addons:
@@ -17,22 +17,17 @@ matrix:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
     - os: linux
-      dist: trusty
+      dist: bionic
       sudo: required
       compiler: clang
       addons:
         apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
-            - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - g++-7
-            - llvm-6.0
-            - clang-6.0
+            - clang-7
             - libstdc++6
       env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
 
     - os: osx
       osx_image: xcode8.2
