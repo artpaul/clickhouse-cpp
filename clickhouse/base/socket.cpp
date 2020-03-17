@@ -232,9 +232,9 @@ void SocketOutput::DoWrite(const void* data, size_t len) {
 }
 
 
-NetrworkInitializer::NetrworkInitializer() {
-    struct NetrworkInitializerImpl {
-        NetrworkInitializerImpl() {
+NetworkInitializer::NetworkInitializer() {
+    struct NetworkInitializerImpl {
+        NetworkInitializerImpl() {
 #if defined (_win_)
             WSADATA data;
             const int result = WSAStartup(MAKEWORD(2, 2), &data);
@@ -249,7 +249,7 @@ NetrworkInitializer::NetrworkInitializer() {
     };
 
 
-    (void)Singleton<NetrworkInitializerImpl>();
+    (void)Singleton<NetworkInitializerImpl>();
 }
 
 

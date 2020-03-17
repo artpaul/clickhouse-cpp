@@ -101,9 +101,9 @@ private:
     SOCKET s_;
 };
 
-static struct NetrworkInitializer {
-    NetrworkInitializer();
-} gNetrworkInitializer;
+static struct NetworkInitializer {
+    NetworkInitializer();
+} gNetworkInitializer;
 
 ///
 SOCKET SocketConnect(const NetworkAddress& addr);
