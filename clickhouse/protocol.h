@@ -2,46 +2,60 @@
 
 namespace clickhouse {
 
-    /// То, что передаёт сервер.
-    namespace ServerCodes {
-        enum {
-            Hello       = 0,    /// Имя, версия, ревизия.
-            Data        = 1,    /// Блок данных со сжатием или без.
-            Exception   = 2,    /// Исключение во время обработки запроса.
-            Progress    = 3,    /// Прогресс выполнения запроса: строк считано, байт считано.
-            Pong        = 4,    /// Ответ на Ping.
-            EndOfStream = 5,    /// Все пакеты были переданы.
-            ProfileInfo = 6,    /// Пакет с профайлинговой информацией.
-            Totals      = 7,    /// Блок данных с тотальными значениями, со сжатием или без.
-            Extremes    = 8,    /// Блок данных с минимумами и максимумами, аналогично.
-        };
-    }
-
-    /// То, что передаёт клиент.
-    namespace ClientCodes {
-        enum {
-            Hello       = 0,    /// Имя, версия, ревизия, БД по-умолчанию.
-            Query       = 1,    /** Идентификатор запроса, настройки на отдельный запрос,
-                                  * информация, до какой стадии исполнять запрос,
-                                  * использовать ли сжатие, текст запроса (без данных для INSERT-а).
-                                  */
-            Data        = 2,    /// Блок данных со сжатием или без.
-            Cancel      = 3,    /// Отменить выполнение запроса.
-            Ping        = 4,    /// Проверка живости соединения с сервером.
-        };
-    }
-
-    /// Использовать ли сжатие.
-    namespace CompressionState {
-        enum {
-            Disable     = 0,
-            Enable      = 1,
-        };
-    }
-
-    namespace Stages {
-        enum {
-            Complete    = 2,
-        };
-    }
+/// Packet types that server transmits.
+namespace ServerCodes {
+    enum {
+        /// Name, version, revision.
+        Hello = 0,
+        /// A block of data (compressed or not).
+        Data = 1,
+        /// An exception during query execution.
+        Exception = 2,
+        /// Query execution progress: rows read, bytes read.
+        Progress = 3,
+        /// Ping response.
+        Pong = 4,
+        /// All packets were transmitted.
+        EndOfStream = 5,
+        /// A packet with profiling info.
+        ProfileInfo = 6,
+        /// A block of data with totals (compressed or not).
+        Totals = 7,
+        /// A block of data with minimums and maximums (compressed or not).
+        Extremes = 8,
+    };
 }
+
+/// Packet types that client transmits.
+namespace ClientCodes {
+    enum {
+        /// Name, version, revision, default DB.
+        Hello = 0,
+        /// Query id, query settings, stage up to which the query must be executed,
+        /// whether the compression must be used,
+        /// query text (without data for INSERTs).
+        Query = 1,
+        /// A block of data (compressed or not).
+        Data = 2,
+        /// Cancel the query execution.
+        Cancel = 3,
+         /// Check that the connection to the server is alive.
+        Ping = 4,
+    };
+}
+
+/// Whether the compression must be used.
+namespace CompressionState {
+    enum {
+        Disable = 0,
+        Enable = 1,
+    };
+}
+
+namespace Stages {
+    enum {
+        Complete = 2,
+    };
+}
+
+} // namespace clickhouse
