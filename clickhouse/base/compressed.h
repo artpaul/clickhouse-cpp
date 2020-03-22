@@ -7,7 +7,6 @@ namespace clickhouse {
 class CompressedInput : public ZeroCopyInput {
 public:
      CompressedInput(CodedInputStream* input);
-    ~CompressedInput();
 
 protected:
     size_t DoNext(const void** ptr, size_t len) override;
