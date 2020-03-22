@@ -436,6 +436,26 @@ inline void IPExample(Client &client) {
     client.Execute("DROP TABLE test.ips");
 }
 
+void WithTotalsExample(Client& client) {
+    auto print_data = [](const Block& block) {
+        if (!block.GetRowCount()) {
+            return;
+        }
+        for (Block::Iterator bi(block); bi.IsValid(); bi.Next()) {
+            std::cout << bi.Name() << " ";
+        }
+        std::cout << std::endl;
+        for (size_t i = 0; i < block.GetRowCount(); ++i) {
+            std::cout << (*block[0]->As<ColumnUInt64>())[i] << "\n";
+        }
+    };
+
+    client.Select(
+        Query("SELECT count(*) FROM system.tables GROUP BY database WITH TOTALS")
+            .OnData(print_data)
+            .OnTotals(print_data));
+}
+
 static void RunTests(Client& client) {
     ArrayExample(client);
     CancelableExample(client);
@@ -450,6 +470,7 @@ static void RunTests(Client& client) {
     NumbersExample(client);
     SelectNull(client);
     ShowTables(client);
+    WithTotalsExample(client);
 }
 
 int main() {
