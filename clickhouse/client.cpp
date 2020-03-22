@@ -97,7 +97,7 @@ private:
     bool ReceiveHello();
 
     /// Reads data packet form input stream.
-    bool ReceiveData();
+    bool ReceiveData(std::function<void(const Block&)> cb);
 
     /// Reads exception packet form input stream.
     bool ReceiveException(bool rethrow = false);
@@ -307,7 +307,16 @@ bool Client::Impl::ReceivePacket(uint64_t* server_packet) {
 
     switch (packet_type) {
     case ServerCodes::Data: {
-        if (!ReceiveData()) {
+        auto cb = [this] (const Block& block) {
+            if (events_) {
+                events_->OnData(block);
+                if (!events_->OnDataCancelable(block)) {
+                    SendCancel();
+                }
+            }
+        };
+
+        if (!ReceiveData(cb)) {
             throw std::runtime_error("can't read data packet from input stream");
         }
         return true;
@@ -380,6 +389,32 @@ bool Client::Impl::ReceivePacket(uint64_t* server_packet) {
         return false;
     }
 
+    case ServerCodes::Totals: {
+        auto cb = [this] (const Block& block) {
+            if (events_) {
+                events_->OnTotals(block);
+            }
+        };
+
+        if (!ReceiveData(cb)) {
+            throw std::runtime_error("can't read data packet with totals from input stream");
+        }
+        return true;
+    }
+
+    case ServerCodes::Extremes: {
+       auto cb = [this] (const Block& block) {
+            if (events_) {
+                events_->OnExtremes(block);
+            }
+        };
+
+        if (!ReceiveData(cb)) {
+            throw std::runtime_error("can't read data packet with extremes from input stream");
+        }
+        return true;
+    }
+
     default:
         throw std::runtime_error("unimplemented " + std::to_string((int)packet_type));
         break;
@@ -449,7 +484,7 @@ bool Client::Impl::ReadBlock(Block* block, CodedInputStream* input) {
     return true;
 }
 
-bool Client::Impl::ReceiveData() {
+bool Client::Impl::ReceiveData(std::function<void(const Block&)> cb) {
     Block block;
 
     if (REVISION >= DBMS_MIN_REVISION_WITH_TEMPORARY_TABLES) {
@@ -473,12 +508,7 @@ bool Client::Impl::ReceiveData() {
         }
     }
 
-    if (events_) {
-        events_->OnData(block);
-        if (!events_->OnDataCancelable(block)) {
-            SendCancel();
-        }
-    }
+    cb(block);
 
     return true;
 }

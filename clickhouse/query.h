@@ -13,11 +13,11 @@ namespace clickhouse {
  * Settings of individual query.
  */
 struct QuerySettings {
-    /// Максимальное количество потоков выполнения запроса. По-умолчанию - определять автоматически.
+    /// A maximum number of threads for query execution. Determined automatically by default.
     int max_threads = 0;
-    /// Считать минимумы и максимумы столбцов результата.
+    /// Calculate minimum and maximum values of each column.
     bool extremes = false;
-    /// Тихо пропускать недоступные шарды.
+    /// Silently skip unavailable shards.
     bool skip_unavailable_shards = false;
     /// Write statistics about read rows, bytes, time elapsed, etc.
     bool output_format_write_statistics = true;
@@ -32,7 +32,6 @@ struct QuerySettings {
     // priority = 0
 };
 
-
 struct Exception {
     int code = 0;
     std::string name;
@@ -41,7 +40,6 @@ struct Exception {
     /// Pointer to nested exception.
     std::unique_ptr<Exception> nested;
 };
-
 
 struct Profile {
     uint64_t rows = 0;
@@ -52,22 +50,22 @@ struct Profile {
     bool calculated_rows_before_limit = false;
 };
 
-
 struct Progress {
     uint64_t rows = 0;
     uint64_t bytes = 0;
     uint64_t total_rows = 0;
 };
 
-
 class QueryEvents {
 public:
-    virtual ~QueryEvents()
-    { }
+    virtual ~QueryEvents() = default;
 
-    /// Some data was received.
+    /// Some data has been received.
     virtual void OnData(const Block& block) = 0;
     virtual bool OnDataCancelable(const Block& block) = 0;
+
+    /// A block with extremes values has been received.
+    virtual void OnExtremes(const Block& block) = 0;
 
     virtual void OnServerException(const Exception& e) = 0;
 
@@ -76,21 +74,23 @@ public:
     virtual void OnProgress(const Progress& progress) = 0;
 
     virtual void OnFinish() = 0;
+
+    /// A block with totals values has been received.
+    virtual void OnTotals(const Block& block) = 0;
 };
 
-
-using ExceptionCallback        = std::function<void(const Exception& e)>;
-using ProgressCallback         = std::function<void(const Progress& progress)>;
-using SelectCallback           = std::function<void(const Block& block)>;
+using DataCallback = std::function<void(const Block& block)>;
+using ExceptionCallback = std::function<void(const Exception& e)>;
+using ProgressCallback = std::function<void(const Progress& progress)>;
+using SelectCallback = DataCallback;
 using SelectCancelableCallback = std::function<bool(const Block& block)>;
-
 
 class Query : public QueryEvents {
 public:
      Query();
      Query(const char* query);
      Query(const std::string& query);
-    ~Query();
+    ~Query() override;
 
     ///
     inline std::string GetText() const {
@@ -98,7 +98,7 @@ public:
     }
 
     /// Set handler for receiving result data.
-    inline Query& OnData(SelectCallback cb) {
+    inline Query& OnData(DataCallback cb) {
         select_cb_ = cb;
         return *this;
     }
@@ -114,6 +114,11 @@ public:
         return *this;
     }
 
+    /// Set handler for receiving extremes values.
+    inline Query& OnExtremes(DataCallback cb) {
+        extremes_cb_ = cb;
+        return *this;
+    }
 
     /// Set handler for receiving a progress of query exceution.
     inline Query& OnProgress(ProgressCallback cb) {
@@ -121,46 +126,37 @@ public:
         return *this;
     }
 
+    /// Set handler for receiving totals values.
+    inline Query& OnTotals(DataCallback cb) {
+        totals_cb_ = cb;
+        return *this;
+    }
+
 private:
-    void OnData(const Block& block) override {
-        if (select_cb_) {
-            select_cb_(block);
-        }
-    }
+    void OnData(const Block& block) override;
 
-    bool OnDataCancelable(const Block& block) override {
-        if (select_cancelable_cb_) {
-            return select_cancelable_cb_(block);
-        } else {
-            return true;
-        }
-    }
+    bool OnDataCancelable(const Block& block) override;
 
-    void OnServerException(const Exception& e) override {
-        if (exception_cb_) {
-            exception_cb_(e);
-        }
-    }
+    void OnExtremes(const Block& block) override;
 
-    void OnProfile(const Profile& profile) override {
-        (void)profile;
-    }
+    void OnServerException(const Exception& e) override;
 
-    void OnProgress(const Progress& progress) override {
-        if (progress_cb_) {
-            progress_cb_(progress);
-        }
-    }
+    void OnProfile(const Profile& profile) override;
 
-    void OnFinish() override {
-    }
+    void OnProgress(const Progress& progress) override;
+
+    void OnFinish() override;
+
+    void OnTotals(const Block& block) override;
 
 private:
     std::string query_;
     ExceptionCallback exception_cb_;
     ProgressCallback progress_cb_;
-    SelectCallback select_cb_;
+    DataCallback select_cb_;
     SelectCancelableCallback select_cancelable_cb_;
+    DataCallback totals_cb_;
+    DataCallback extremes_cb_;
 };
 
-}
+} // namespace clickhouse
