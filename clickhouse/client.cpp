@@ -24,7 +24,6 @@
 #define REVISION                                        54126
 
 #define DBMS_MIN_REVISION_WITH_TEMPORARY_TABLES         50264
-#define DBMS_MIN_REVISION_WITH_TOTAL_ROWS_IN_PROGRESS   51554
 #define DBMS_MIN_REVISION_WITH_BLOCK_INFO               51903
 #define DBMS_MIN_REVISION_WITH_CLIENT_INFO              54032
 #define DBMS_MIN_REVISION_WITH_SERVER_TIMEZONE          54058
@@ -365,10 +364,8 @@ bool Client::Impl::ReceivePacket(uint64_t* server_packet) {
         if (!WireFormat::ReadUInt64(&input_, &info.bytes)) {
             return false;
         }
-        if (REVISION >= DBMS_MIN_REVISION_WITH_TOTAL_ROWS_IN_PROGRESS) {
-            if (!WireFormat::ReadUInt64(&input_, &info.total_rows)) {
-                return false;
-            }
+        if (!WireFormat::ReadUInt64(&input_, &info.total_rows)) {
+            return false;
         }
 
         if (events_) {
@@ -486,13 +483,11 @@ bool Client::Impl::ReadBlock(Block* block, CodedInputStream* input) {
 
 bool Client::Impl::ReceiveData(std::function<void(const Block&)> cb) {
     Block block;
+    std::string table_name;
 
-    if (REVISION >= DBMS_MIN_REVISION_WITH_TEMPORARY_TABLES) {
-        std::string table_name;
-
-        if (!WireFormat::ReadString(&input_, &table_name)) {
-            return false;
-        }
+    // Read name of a table.
+    if (!WireFormat::ReadString(&input_, &table_name)) {
+        return false;
     }
 
     if (compression_ == CompressionState::Enable) {
