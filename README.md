@@ -18,6 +18,10 @@ C++ client for [ClickHouse](https://clickhouse.tech/)
 * Tuple
 * UInt8, UInt16, UInt32, UInt64, Int8, Int16, Int32, Int64
 
+## C++ version
+
+Currently, minimal version of C++ standard is 17, for C++ 11 see [1.x release line](https://github.com/artpaul/clickhouse-cpp/releases).
+
 ## Building
 
 ```sh
