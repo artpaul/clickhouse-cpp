@@ -18,6 +18,9 @@ public:
     /// Returns nested column.
     ColumnRef Nested() const;
 
+    /// Returns nulls column.
+    ColumnRef Nulls() const;
+
 public:
     /// Appends content of given column to the end of current one.
     void Append(ColumnRef column) override;
