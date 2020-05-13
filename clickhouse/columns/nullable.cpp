@@ -23,6 +23,10 @@ ColumnRef ColumnNullable::Nested() const {
     return nested_;
 }
 
+ColumnRef ColumnNullable::Nulls() const {
+    return nulls_;
+}
+
 void ColumnNullable::Append(ColumnRef column) {
     if (auto col = column->As<ColumnNullable>()) {
         if (!col->nested_->Type()->IsEqual(nested_->Type())) {
