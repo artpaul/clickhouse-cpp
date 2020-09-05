@@ -21,6 +21,7 @@ static const std::unordered_map<std::string, Type::Code> kTypeCode = {
     { "String",      Type::String },
     { "FixedString", Type::FixedString },
     { "DateTime",    Type::DateTime },
+    { "DateTime64",  Type::DateTime64 },
     { "Date",        Type::Date },
     { "Array",       Type::Array },
     { "Nullable",    Type::Nullable },

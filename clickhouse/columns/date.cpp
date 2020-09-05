@@ -93,4 +93,53 @@ ColumnRef ColumnDateTime::Slice(size_t begin, size_t len) {
     return result;
 }
 
+
+ColumnDateTime64::ColumnDateTime64(size_t precision)
+        : Column(Type::CreateDateTime64(precision))
+        , data_(std::make_shared<ColumnUInt64>())
+{
+}
+
+ColumnDateTime64::ColumnDateTime64(TypeRef type, std::shared_ptr<ColumnUInt64> data)
+        : Column(type)
+        , data_(std::move(data))
+{
+}
+
+void ColumnDateTime64::Append(const uint64_t& value) {
+    data_->Append(value);
+}
+
+uint64_t ColumnDateTime64::At(size_t n) const {
+    return data_->At(n);
+}
+
+void ColumnDateTime64::Append(ColumnRef column) {
+    if (auto col = column->As<ColumnDateTime64>()) {
+        data_->Append(col->data_);
+    }
+}
+
+bool ColumnDateTime64::Load(CodedInputStream* input, size_t rows) {
+    return data_->Load(input, rows);
+}
+
+void ColumnDateTime64::Save(CodedOutputStream* output) {
+    data_->Save(output);
+}
+
+size_t ColumnDateTime64::Size() const {
+    return data_->Size();
+}
+
+void ColumnDateTime64::Clear() {
+    data_->Clear();
+}
+
+ColumnRef ColumnDateTime64::Slice(size_t begin, size_t len) {
+    auto col = data_->Slice(begin, len)->As<ColumnUInt64>();
+    std::shared_ptr<ColumnDateTime64> result(new ColumnDateTime64(type_, std::move(col)));
+    return result;
+}
+
 }
