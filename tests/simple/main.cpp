@@ -104,7 +104,7 @@ inline void MultiArrayExample(Client& client) {
     client.Execute("DROP TABLE test.multiarray");
 }
 
-inline void DateExample(Client& client) {
+inline void DateTimeExample(Client& client) {
     Block b;
 
     /// Create a table.
@@ -123,6 +123,35 @@ inline void DateExample(Client& client) {
                 std::cerr << std::asctime(std::localtime(&t)) << " " << std::endl;
             }
         }
+    );
+
+    /// Delete table.
+    client.Execute("DROP TABLE test.date");
+}
+
+inline void DateTime64Example(Client& client) {
+    Block b;
+
+    /// Create a table.
+    client.Execute("CREATE TABLE IF NOT EXISTS test.date (d DateTime64(6)) ENGINE = Memory");
+
+    auto d = std::make_shared<ColumnDateTime64>(6);
+    d->Append(std::time(nullptr) * 1'000'000 + 123'456);
+    b.AppendColumn("d", d);
+    client.Insert("test.date", b);
+
+    client.Select("SELECT d FROM test.date", [](const Block& block)
+                  {
+                      for (size_t c = 0; c < block.GetRowCount(); ++c) {
+                          auto col = block[0]->As<ColumnDateTime64>();
+                          uint64_t t = col->As<ColumnDateTime64>()->At(c);
+
+                          std::time_t ct = t / 1'000'000;
+                          uint64_t us = t % 1'000'000;
+                          std::cerr << "ctime: " << std::asctime(std::localtime(&ct));
+                          std::cerr << "us: " << us << std::endl;
+                      }
+                  }
     );
 
     /// Delete table.
@@ -460,7 +489,8 @@ void WithTotalsExample(Client& client) {
 static void RunTests(Client& client) {
     ArrayExample(client);
     CancelableExample(client);
-    DateExample(client);
+    DateTimeExample(client);
+    DateTime64Example(client);
     DecimalExample(client);
     EnumExample(client);
     ExecptionExample(client);

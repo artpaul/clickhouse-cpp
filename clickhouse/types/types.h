@@ -26,6 +26,7 @@ public:
         String,
         FixedString,
         DateTime,
+        DateTime64,
         Date,
         Array,
         Nullable,
@@ -75,6 +76,8 @@ public:
 
     static TypeRef CreateDateTime();
 
+    static TypeRef CreateDateTime64(size_t precision);
+
     static TypeRef CreateDecimal(size_t precision, size_t scale);
 
     static TypeRef CreateIPv4();
@@ -107,6 +110,10 @@ private:
         TypeRef item_type;
     };
 
+    struct DateTime64Impl {
+        size_t precision;
+    };
+
     struct DecimalImpl {
         size_t precision;
         size_t scale;
@@ -133,6 +140,7 @@ private:
     const Code code_;
     union {
         ArrayImpl* array_;
+        DateTime64Impl* date_time_64_;
         DecimalImpl* decimal_;
         NullableImpl* nullable_;
         TupleImpl* tuple_;

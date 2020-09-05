@@ -9,6 +9,8 @@ Type::Type(const Code code)
 {
     if (code_ == Array) {
         array_ = new ArrayImpl;
+    } else if (code_ == DateTime64) {
+        date_time_64_ = new DateTime64Impl;
     } else if (code_ == Tuple) {
         tuple_ = new TupleImpl;
     } else if (code_ == Nullable) {
@@ -97,6 +99,8 @@ std::string Type::GetName() const {
             return "IPv6";
         case DateTime:
             return "DateTime";
+        case DateTime64:
+            return "DateTime64(" + std::to_string(date_time_64_->precision) + ")";
         case Date:
             return "Date";
         case Array:
@@ -167,6 +171,12 @@ TypeRef Type::CreateDate() {
 
 TypeRef Type::CreateDateTime() {
     return TypeRef(new Type(Type::DateTime));
+}
+
+TypeRef Type::CreateDateTime64(size_t precision) {
+    TypeRef type(new Type(Type::DateTime64));
+    type->date_time_64_->precision = precision;
+    return type;
 }
 
 TypeRef Type::CreateDecimal(size_t precision, size_t scale) {
