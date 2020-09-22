@@ -59,7 +59,7 @@ TEST(TypesCase, EnumTypes) {
     ASSERT_EQ(enum16.GetEnumName(2), "Red");
     ASSERT_EQ(enum16.GetEnumValue("Green"), 1);
 
-    ASSERT_EQ(std::distance(enum16.BeginValueToName(), enum16.EndValueToName()), 3u);
+    ASSERT_EQ(std::distance(enum16.BeginValueToName(), enum16.EndValueToName()), 3);
     ASSERT_EQ((*enum16.BeginValueToName()).first, 1);
     ASSERT_EQ((*enum16.BeginValueToName()).second, "Green");
     ASSERT_EQ((*(++enum16.BeginValueToName())).first, 2);
