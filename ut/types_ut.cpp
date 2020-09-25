@@ -30,6 +30,15 @@ TEST(TypesCase, TypeName) {
             Type::CreateString()})->GetName(),
         "Tuple(Int32, String)"
     );
+
+    ASSERT_EQ(
+        Type::CreateEnum8({{"One", 1}})->GetName(),
+        "Enum8('One' = 1)"
+    );
+    ASSERT_EQ(
+        Type::CreateEnum8({})->GetName(),
+        "Enum8()"
+    );
 }
 
 TEST(TypesCase, NullableType) {

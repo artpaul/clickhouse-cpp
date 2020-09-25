@@ -127,17 +127,14 @@ std::string Type::GetName() const {
             } else {
                 result = "Enum16(";
             }
-            for (auto ei = enum_->value_to_name.begin(); ; ) {
+            for (auto ei = enum_->value_to_name.begin(); ei != enum_->value_to_name.end(); ++ei) {
+                if (ei != enum_->value_to_name.begin()) {
+                    result += ", ";
+                }
                 result += "'";
                 result += ei->second;
                 result += "' = ";
                 result += std::to_string(ei->first);
-
-                if (++ei != enum_->value_to_name.end()) {
-                    result += ", ";
-                } else {
-                    break;
-                }
             }
             result += ")";
             return result;
