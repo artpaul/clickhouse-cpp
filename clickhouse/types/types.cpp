@@ -153,7 +153,72 @@ std::string Type::GetName() const {
 }
 
 bool Type::IsEqual(const TypeRef& other) const {
-    return this->GetName() == other->GetName();
+    if (this == other.get()) {
+        return true;
+    }
+    if (code_ != other->code_) {
+        return false;
+    }
+    switch (code_) {
+        case Void:
+        case Int8:
+        case Int16:
+        case Int32:
+        case Int64:
+        case Int128:
+        case UInt8:
+        case UInt16:
+        case UInt32:
+        case UInt64:
+        case UUID:
+        case Float32:
+        case Float64:
+        case String:
+        case IPv4:
+        case IPv6:
+        case DateTime:
+        case Date:
+            return true;
+        case Array:
+            return array_->item_type->IsEqual(other->array_->item_type);
+        case DateTime64:
+            return date_time_64_->precision == other->date_time_64_->precision;
+        case FixedString:
+            return string_size_ == other->string_size_;
+        case Tuple:
+            if (tuple_->item_types.size() != other->tuple_->item_types.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < tuple_->item_types.size(); ++i) {
+                if (!tuple_->item_types[i]->IsEqual(other->tuple_->item_types[i])) {
+                    return false;
+                }
+            }
+            return true;
+        case Nullable:
+            return nullable_->nested_type->IsEqual(other->nullable_->nested_type);
+        case Enum8:
+        case Enum16: {
+            auto ai = enum_->name_to_value.begin();
+            auto bi = other->enum_->name_to_value.begin();
+            while (ai != enum_->name_to_value.end() && bi != other->enum_->name_to_value.end()) {
+                if (ai->first != bi->first || ai->second != bi->second) {
+                    return false;
+                }
+                ai++;
+                bi++;
+            }
+            return ai == enum_->name_to_value.end() && bi == other->enum_->name_to_value.end();
+        }
+        case Decimal:
+            return decimal_->precision == other->decimal_->precision &&
+                   decimal_->scale == other->decimal_->scale;
+        case Decimal32:
+        case Decimal64:
+        case Decimal128:
+            return decimal_->scale == other->decimal_->scale;
+    }
+    return false;
 }
 
 TypeRef Type::CreateArray(TypeRef item_type) {

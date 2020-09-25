@@ -178,3 +178,20 @@ TEST(ColumnsCase, UnmatchedBrackets) {
     ASSERT_EQ(nullptr, CreateColumnByType("Nullable(FixedString(10000"));
     ASSERT_EQ(nullptr, CreateColumnByType("Nullable(FixedString(10000)"));
 }
+
+TEST(ColumnCase, IsEqualType) {
+    auto compare = [] (const std::string& s1, const std::string& s2) {
+        auto c1 = CreateColumnByType(s1);
+        auto c2 = CreateColumnByType(s2);
+        if (!c1 || !c2) {
+            return false;
+        }
+        return c1->Type()->IsEqual(c2->Type());
+    };
+
+    ASSERT_TRUE (compare("FixedString(10)", "FixedString(10)"));
+    ASSERT_FALSE(compare("FixedString(10)", "FixedString(11)"));
+
+    ASSERT_TRUE (compare("Nullable(Int8)", "Nullable(Int8)"));
+    ASSERT_FALSE(compare("Nullable(Int8)", "Nullable(Int16)"));
+}
