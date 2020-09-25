@@ -1,6 +1,7 @@
 #include <clickhouse/columns/array.h>
 #include <clickhouse/columns/date.h>
 #include <clickhouse/columns/enum.h>
+#include <clickhouse/columns/factory.h>
 #include <clickhouse/columns/nullable.h>
 #include <clickhouse/columns/numeric.h>
 #include <clickhouse/columns/string.h>
@@ -168,4 +169,12 @@ TEST(ColumnsCase, UUIDSlice) {
     ASSERT_EQ(sub->Size(), 2u);
     ASSERT_EQ(sub->At(0), UInt128(0x84b9f24bc26b49c6llu, 0xa03b4ab723341951llu));
     ASSERT_EQ(sub->At(1), UInt128(0x3507213c178649f9llu, 0x9faf035d662f60aellu));
+}
+
+TEST(ColumnsCase, UnmatchedBrackets) {
+    ASSERT_NE(nullptr, CreateColumnByType("FixedString(10)"));
+    // When type string has unmatched brackets, CreateColumnByType must return nullptr.
+    ASSERT_EQ(nullptr, CreateColumnByType("FixedString(10"));
+    ASSERT_EQ(nullptr, CreateColumnByType("Nullable(FixedString(10000"));
+    ASSERT_EQ(nullptr, CreateColumnByType("Nullable(FixedString(10000)"));
 }
