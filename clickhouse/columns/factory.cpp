@@ -117,10 +117,11 @@ static ColumnRef CreateColumnFromAst(const TypeAst& ast) {
         case TypeAst::Enum: {
             std::vector<Type::EnumItem> enum_items;
 
-            enum_items.reserve(ast.elements.size());
-            for (const auto& elem : ast.elements) {
+            enum_items.reserve(ast.elements.size() / 2);
+            for (size_t i = 0; i < ast.elements.size(); i += 2) {
                 enum_items.push_back(
-                    Type::EnumItem{elem.name, (int16_t)elem.value});
+                    Type::EnumItem{ast.elements[i].value_string,
+                                   (int16_t)ast.elements[i + 1].value});
             }
 
             if (ast.code == Type::Enum8) {
@@ -135,8 +136,10 @@ static ColumnRef CreateColumnFromAst(const TypeAst& ast) {
             break;
         }
 
+        case TypeAst::Assign:
         case TypeAst::Null:
         case TypeAst::Number:
+        case TypeAst::String:
             break;
     }
 
