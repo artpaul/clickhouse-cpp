@@ -129,3 +129,26 @@ TEST(TypeParserCase, ParseDecimal128) {
     ASSERT_EQ(ast.elements.size(), 1u);
     ASSERT_EQ(ast.elements[0].value, 3);
 }
+
+TEST(TypeParserCase, ParseDateTime) {
+    TypeAst ast;
+    TypeParser("DateTime('UTC')").Parse(&ast);
+    ASSERT_EQ(ast.meta, TypeAst::Terminal);
+    ASSERT_EQ(ast.name, "DateTime");
+    ASSERT_EQ(ast.code, Type::DateTime);
+    ASSERT_EQ(ast.elements.size(), 1u);
+    ASSERT_EQ(ast.elements[0].value_string, "UTC");
+}
+
+TEST(TypeParserCase, ParseDateTime64) {
+    TypeAst ast;
+    TypeParser("DateTime64(3, 'UTC')").Parse(&ast);
+    ASSERT_EQ(ast.meta, TypeAst::Terminal);
+    ASSERT_EQ(ast.name, "DateTime64");
+    ASSERT_EQ(ast.code, Type::DateTime64);
+    ASSERT_EQ(ast.elements.size(), 2u);
+    ASSERT_EQ(ast.elements[0].name, "");
+    ASSERT_EQ(ast.elements[0].value, 3);
+    ASSERT_EQ(ast.elements[1].value_string, "UTC");
+    ASSERT_EQ(ast.elements[1].value, 0);
+}

@@ -119,6 +119,14 @@ TEST(ColumnsCase, Date2038) {
     ASSERT_EQ(static_cast<std::uint64_t>(col1->At(0)), 25882ul * 86400ul);
 }
 
+TEST(ColumnsCase, DateTime) {
+    ASSERT_NE(nullptr, CreateColumnByType("DateTime"));
+    ASSERT_NE(nullptr, CreateColumnByType("DateTime('Europe/Moscow')"));
+
+    ASSERT_EQ(CreateColumnByType("DateTime('UTC')")->As<ColumnDateTime>()->Timezone(), "UTC");
+    ASSERT_EQ(CreateColumnByType("DateTime64(3, 'UTC')")->As<ColumnDateTime64>()->Timezone(), "UTC");
+}
+
 TEST(ColumnsCase, EnumTest) {
     std::vector<Type::EnumItem> enum_items = {{"Hi", 1}, {"Hello", 2}};
 

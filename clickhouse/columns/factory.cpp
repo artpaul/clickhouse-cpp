@@ -61,9 +61,20 @@ static ColumnRef CreateTerminalColumn(const TypeAst& ast) {
         return std::make_shared<ColumnFixedString>(ast.elements.front().value);
 
     case Type::DateTime:
-        return std::make_shared<ColumnDateTime>();
+        if (ast.elements.empty()) {
+            return std::make_shared<ColumnDateTime>();
+        } else {
+            return std::make_shared<ColumnDateTime>(ast.elements[0].value_string);
+        }
     case Type::DateTime64:
-        return std::make_shared<ColumnDateTime64>(ast.elements.front().value);
+        if (ast.elements.empty()) {
+            return nullptr;
+        }
+        if (ast.elements.size() == 1) {
+            return std::make_shared<ColumnDateTime64>(ast.elements[0].value);
+        } else {
+            return std::make_shared<ColumnDateTime64>(ast.elements[0].value, ast.elements[1].value_string);
+        }
     case Type::Date:
         return std::make_shared<ColumnDate>();
 

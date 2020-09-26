@@ -9,8 +9,8 @@ Type::Type(const Code code)
 {
     if (code_ == Array) {
         array_ = new ArrayImpl;
-    } else if (code_ == DateTime64) {
-        date_time_64_ = new DateTime64Impl;
+    } else if (code_ == DateTime || code_ == DateTime64) {
+        date_time_ = new DateTimeImpl;
     } else if (code_ == Tuple) {
         tuple_ = new TupleImpl;
     } else if (code_ == Nullable) {
@@ -25,6 +25,8 @@ Type::Type(const Code code)
 Type::~Type() {
     if (code_ == Array) {
         delete array_;
+    } else if (code_ == DateTime || code_ == DateTime64) {
+        delete date_time_;
     } else if (code_ == Tuple) {
         delete tuple_;
     } else if (code_ == Nullable) {
@@ -98,9 +100,18 @@ std::string Type::GetName() const {
         case IPv6:
             return "IPv6";
         case DateTime:
-            return "DateTime";
+            if (date_time_->timezone.empty()) {
+                return "DateTime";
+            } else {
+                return "DateTime('" + date_time_->timezone + "')";
+            }
         case DateTime64:
-            return "DateTime64(" + std::to_string(date_time_64_->precision) + ")";
+            if (date_time_->timezone.empty()) {
+                return "DateTime64(" + std::to_string(date_time_->precision) + ")";
+            } else {
+                return "DateTime64(" + std::to_string(date_time_->precision) + ", '" +
+                    date_time_->timezone + "')";
+            }
         case Date:
             return "Date";
         case Array:
@@ -166,13 +177,16 @@ TypeRef Type::CreateDate() {
     return TypeRef(new Type(Type::Date));
 }
 
-TypeRef Type::CreateDateTime() {
-    return TypeRef(new Type(Type::DateTime));
+TypeRef Type::CreateDateTime(std::string timezone) {
+    TypeRef type(new Type(Type::DateTime));
+    type->date_time_->timezone = std::move(timezone);
+    return type;
 }
 
-TypeRef Type::CreateDateTime64(size_t precision) {
+TypeRef Type::CreateDateTime64(size_t precision, std::string timezone) {
     TypeRef type(new Type(Type::DateTime64));
-    type->date_time_64_->precision = precision;
+    type->date_time_->precision = precision;
+    type->date_time_->timezone = std::move(timezone);
     return type;
 }
 
@@ -269,6 +283,17 @@ EnumType::ValueToNameIterator EnumType::BeginValueToName() const {
 
 EnumType::ValueToNameIterator EnumType::EndValueToName() const {
     return type_->enum_->value_to_name.end();
+}
+
+DateTimeType::DateTimeType(const TypeRef& type)
+    : type_(type)
+{
+    assert(type->GetCode() == Type::DateTime ||
+           type->GetCode() == Type::DateTime64);
+}
+
+std::string DateTimeType::Timezone() const {
+    return type_->date_time_->timezone;
 }
 
 }
