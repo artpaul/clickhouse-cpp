@@ -7,7 +7,7 @@ C++ client for [ClickHouse](https://clickhouse.tech/)
 
 * Array(T)
 * Date
-* DateTime
+* DateTime([timezone]), DateTime64(N, [timezone])
 * Decimal32, Decimal64, Decimal128
 * Enum8, Enum16
 * FixedString(N)
