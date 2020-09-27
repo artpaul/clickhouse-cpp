@@ -29,7 +29,7 @@ public:
 
     /// Clear column data .
     void Clear() override;
-    
+
     /// Returns count of rows in the column.
     size_t Size() const override;
 
@@ -44,12 +44,16 @@ private:
 class ColumnDateTime : public Column {
 public:
     ColumnDateTime();
+    explicit ColumnDateTime(std::string timezone);
 
     /// Appends one element to the end of column.
     void Append(const std::time_t& value);
 
     /// Returns element at given row number.
     std::time_t At(size_t n) const;
+
+    /// Timezone associated with a data column.
+    std::string Timezone() const;
 
 public:
     /// Appends content of given column to the end of current one.
@@ -77,13 +81,17 @@ private:
 /** */
 class ColumnDateTime64 : public Column {
 public:
-    ColumnDateTime64(size_t precision);
+    explicit ColumnDateTime64(size_t precision);
+    ColumnDateTime64(size_t precision, std::string timezone);
 
     /// Appends one element to the end of column.
     void Append(const uint64_t& value);
 
     /// Returns element at given row number.
     uint64_t At(size_t n) const;
+
+    /// Timezone associated with a data column.
+    std::string Timezone() const;
 
 public:
     /// Appends content of given column to the end of current one.

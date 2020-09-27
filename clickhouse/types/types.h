@@ -76,9 +76,9 @@ public:
 
     static TypeRef CreateDate();
 
-    static TypeRef CreateDateTime();
+    static TypeRef CreateDateTime(std::string timezone = std::string());
 
-    static TypeRef CreateDateTime64(size_t precision);
+    static TypeRef CreateDateTime64(size_t precision, std::string timezone = std::string());
 
     static TypeRef CreateDecimal(size_t precision, size_t scale);
 
@@ -112,8 +112,9 @@ private:
         TypeRef item_type;
     };
 
-    struct DateTime64Impl {
+    struct DateTimeImpl {
         size_t precision;
+        std::string timezone;
     };
 
     struct DecimalImpl {
@@ -137,12 +138,13 @@ private:
     };
 
     friend class EnumType;
+    friend class DateTimeType;
 
 
     const Code code_;
     union {
         ArrayImpl* array_;
-        DateTime64Impl* date_time_64_;
+        DateTimeImpl* date_time_;
         DecimalImpl* decimal_;
         NullableImpl* nullable_;
         TupleImpl* tuple_;
@@ -168,6 +170,17 @@ public:
     using ValueToNameIterator = Type::EnumImpl::ValueToNameType::const_iterator;
     ValueToNameIterator BeginValueToName() const;
     ValueToNameIterator EndValueToName() const;
+
+private:
+    TypeRef type_;
+};
+
+class DateTimeType {
+public:
+    explicit DateTimeType(const TypeRef& type);
+
+    /// Timezone associated with a data column.
+    std::string Timezone() const;
 
 private:
     TypeRef type_;
