@@ -46,6 +46,7 @@ struct ClientInfo {
     std::string initial_address = "[::ffff:127.0.0.1]:0";
     uint64_t client_version_major = 0;
     uint64_t client_version_minor = 0;
+    uint64_t client_version_patch = 0;
     uint32_t client_revision = 0;
 };
 
@@ -572,6 +573,7 @@ void Client::Impl::SendQuery(const std::string& query) {
         info.client_name = "ClickHouse client";
         info.client_version_major = DBMS_VERSION_MAJOR;
         info.client_version_minor = DBMS_VERSION_MINOR;
+        info.client_version_patch = REVISION;
         info.client_revision = REVISION;
 
 
@@ -588,8 +590,12 @@ void Client::Impl::SendQuery(const std::string& query) {
         WireFormat::WriteUInt64(&output_, info.client_version_minor);
         WireFormat::WriteUInt64(&output_, info.client_revision);
 
-        if (server_info_.revision >= DBMS_MIN_REVISION_WITH_QUOTA_KEY_IN_CLIENT_INFO)
+        if (server_info_.revision >= DBMS_MIN_REVISION_WITH_QUOTA_KEY_IN_CLIENT_INFO) {
             WireFormat::WriteString(&output_, info.quota_key);
+        }
+        if (server_info_.revision >= DBMS_MIN_REVISION_WITH_VERSION_PATCH) {
+            WireFormat::WriteUInt64(&output_, info.client_version_patch);
+        }
     }
 
     /// Per query settings.
