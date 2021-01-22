@@ -3,6 +3,8 @@ ClickHouse C++ client [![Build Status](https://travis-ci.org/artpaul/clickhouse-
 
 C++ client for [ClickHouse](https://clickhouse.tech/)
 
+**NOTE:** The library is no longer supported. Please use https://github.com/ClickHouse/clickhouse-cpp.
+
 ## Supported data types
 
 * Array(T)
