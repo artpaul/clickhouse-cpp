@@ -6,6 +6,7 @@
 
 #include <cstddef>
 #include <string>
+#include <optional>
 
 #if defined(_win_)
 #   pragma comment(lib, "Ws2_32.lib")
@@ -24,6 +25,7 @@
 #endif
 
 struct addrinfo;
+struct timeval;
 
 namespace clickhouse {
 
@@ -40,6 +42,23 @@ public:
 
 private:
     struct addrinfo* info_;
+};
+
+class SocketTimeoutParams {
+public:
+    explicit SocketTimeoutParams(
+        unsigned int connection_socket_recv_timeout_sec,
+        unsigned int connection_socket_recv_timeout_usec,
+        unsigned int connection_socket_send_timeout_sec,
+        unsigned int connection_socket_send_timeout_usec
+    );
+
+    const struct timeval& GetRecvTimeout();
+    const struct timeval& GetSendTimeout();
+
+private:
+    const struct timeval recv_timeout_;
+    const struct timeval send_timeout_;
 };
 
 
@@ -106,7 +125,7 @@ static struct NetworkInitializer {
 } gNetworkInitializer;
 
 ///
-SOCKET SocketConnect(const NetworkAddress& addr);
+SOCKET SocketConnect(const NetworkAddress& addr, const std::optional<SocketTimeoutParams>& socket_timeout_params);
 
 ssize_t Poll(struct pollfd* fds, int nfds, int timeout) noexcept;
 

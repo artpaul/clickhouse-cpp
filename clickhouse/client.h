@@ -69,6 +69,13 @@ struct ClientOptions {
     DECLARE_FIELD(tcp_keepalive_intvl, std::chrono::seconds, SetTcpKeepAliveInterval, std::chrono::seconds(5));
     DECLARE_FIELD(tcp_keepalive_cnt, unsigned int, SetTcpKeepAliveCount, 3);
 
+    /// Socket timeout
+    DECLARE_FIELD(connection_socket_timeout, bool, ConnectionTimeout, false);
+    DECLARE_FIELD(connection_socket_recv_timeout_sec, unsigned int, SetConnectionRecvTimeoutSeconds, 60);
+    DECLARE_FIELD(connection_socket_recv_timeout_usec, unsigned int, SetConnectionRecvTimeoutMicroseconds, 0);
+    DECLARE_FIELD(connection_socket_send_timeout_sec, unsigned int, SetConnectionSendTimeoutSeconds, 60);
+    DECLARE_FIELD(connection_socket_send_timeout_usec, unsigned int, SetConnectionSendTimeoutMicroseconds, 0);
+
 #undef DECLARE_FIELD
 };
 
