@@ -167,11 +167,9 @@ Client::Impl::Impl(const ClientOptions& opts)
     , buffered_output_(&socket_output_)
     , output_(&buffered_output_)
 {
-    if (options_.connection_socket_timeout) {
+    if (options_.connection_timeout) {
         socket_timeout_params_.emplace(
-                options_.connection_socket_recv_timeout_sec, options_.connection_socket_recv_timeout_usec,
-                options_.connection_socket_send_timeout_sec, options_.connection_socket_send_timeout_usec
-        );
+                options_.connection_recv_timeout.count(), options_.connection_send_timeout.count());
     }
 
     for (unsigned int i = 0; ; ) {

@@ -46,12 +46,7 @@ private:
 
 class SocketTimeoutParams {
 public:
-    explicit SocketTimeoutParams(
-        unsigned int connection_socket_recv_timeout_sec,
-        unsigned int connection_socket_recv_timeout_usec,
-        unsigned int connection_socket_send_timeout_sec,
-        unsigned int connection_socket_send_timeout_usec
-    );
+    explicit SocketTimeoutParams(unsigned int con_recv_timeout_sec, unsigned int con_send_timeout_sec);
 
     const struct timeval& GetRecvTimeout();
     const struct timeval& GetSendTimeout();

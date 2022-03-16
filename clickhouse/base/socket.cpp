@@ -125,14 +125,9 @@ const struct addrinfo* NetworkAddress::Info() const {
 }
 
 
-SocketTimeoutParams::SocketTimeoutParams(
-        unsigned int connection_socket_recv_timeout_sec,
-        unsigned int connection_socket_recv_timeout_usec,
-        unsigned int connection_socket_send_timeout_sec,
-        unsigned int connection_socket_send_timeout_usec
-) :
-    recv_timeout_{.tv_sec = connection_socket_recv_timeout_sec, .tv_usec = connection_socket_recv_timeout_usec},
-    send_timeout_{.tv_sec = connection_socket_send_timeout_sec, .tv_usec = connection_socket_send_timeout_usec}
+SocketTimeoutParams::SocketTimeoutParams( unsigned int con_recv_timeout_sec, unsigned int con_send_timeout_sec)
+    : recv_timeout_{.tv_sec = con_recv_timeout_sec, .tv_usec = 0},
+      send_timeout_{.tv_sec = con_send_timeout_sec, .tv_usec = 0}
 {
 }
 
