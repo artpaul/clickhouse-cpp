@@ -141,6 +141,7 @@ private:
     QueryEvents* events_;
     int compression_ = CompressionState::Disable;
 
+    std::optional<SocketTimeoutParams> socket_timeout_params_;
     SocketHolder socket_;
 
     SocketInput socket_input_;
@@ -166,6 +167,11 @@ Client::Impl::Impl(const ClientOptions& opts)
     , buffered_output_(&socket_output_)
     , output_(&buffered_output_)
 {
+    if (options_.connection_timeout) {
+        socket_timeout_params_.emplace(
+                options_.connection_recv_timeout.count(), options_.connection_send_timeout.count());
+    }
+
     for (unsigned int i = 0; ; ) {
         try {
             ResetConnection();
@@ -267,7 +273,8 @@ void Client::Impl::Ping() {
 }
 
 void Client::Impl::ResetConnection() {
-    SocketHolder s(SocketConnect(NetworkAddress(options_.host, std::to_string(options_.port))));
+    SocketHolder s(SocketConnect(
+            NetworkAddress(options_.host, std::to_string(options_.port)), socket_timeout_params_));
 
     if (s.Closed()) {
         throw std::system_error(errno, std::system_category());

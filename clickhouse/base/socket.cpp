@@ -72,6 +72,18 @@ void SetNonBlock(SOCKET fd, bool value) {
 #endif
 }
 
+void SetTimeout(SOCKET fd, SocketTimeoutParams params) {
+#if defined(_unix_)
+
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &params.GetRecvTimeout(), sizeof(params.GetRecvTimeout())) < 0) {
+        throw std::system_error(errno, std::system_category(), "failed to setsockopt(SO_RCVTIMEO)");
+    }
+    if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &params.GetSendTimeout(), sizeof(params.GetSendTimeout())) < 0) {
+        throw std::system_error(errno, std::system_category(), "failed to setsockopt(SO_SNDTIMEO)");
+    }
+#endif
+}
+
 } // namespace
 
 NetworkAddress::NetworkAddress(const std::string& host, const std::string& port)
@@ -110,6 +122,21 @@ NetworkAddress::~NetworkAddress() {
 
 const struct addrinfo* NetworkAddress::Info() const {
     return info_;
+}
+
+
+SocketTimeoutParams::SocketTimeoutParams( unsigned int con_recv_timeout_sec, unsigned int con_send_timeout_sec)
+    : recv_timeout_{.tv_sec = con_recv_timeout_sec, .tv_usec = 0},
+      send_timeout_{.tv_sec = con_send_timeout_sec, .tv_usec = 0}
+{
+}
+
+const struct timeval& SocketTimeoutParams::GetRecvTimeout(){
+    return recv_timeout_;
+}
+
+const struct timeval& SocketTimeoutParams::GetSendTimeout(){
+    return send_timeout_;
 }
 
 
@@ -253,7 +280,7 @@ NetworkInitializer::NetworkInitializer() {
 }
 
 
-SOCKET SocketConnect(const NetworkAddress& addr) {
+SOCKET SocketConnect(const NetworkAddress& addr, const std::optional<SocketTimeoutParams>& socket_timeout_params) {
     int last_err = 0;
     for (auto res = addr.Info(); res != nullptr; res = res->ai_next) {
         SOCKET s(socket(res->ai_family, res->ai_socktype, res->ai_protocol));
@@ -263,6 +290,9 @@ SOCKET SocketConnect(const NetworkAddress& addr) {
         }
 
         SetNonBlock(s, true);
+        if(socket_timeout_params) {
+            SetTimeout(s, *socket_timeout_params);
+        }
 
         if (connect(s, res->ai_addr, (int)res->ai_addrlen) != 0) {
             int err = errno;
